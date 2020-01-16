@@ -1,1 +1,1 @@
-"# breast-masses-detection-classification-yolo" 
+Implementation of Al-masni, M. A., Al-antari, M. A., Park, J. M., Gi, G., Kim, T. Y., Rivera, P., Valarezo, E., Choi, M. T., Han, S. M., & Kim, T. S. (2018). Simultaneous detection and classification of breast masses in digital mammograms via a deep learning YOLO-based CAD system. Computer Methods and Programs in Biomedicine, 157, 85–94. https://doi.org/10.1016/j.cmpb.2018.01.017
