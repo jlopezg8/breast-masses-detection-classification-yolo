@@ -3,6 +3,9 @@ Original database
 =================
 "We have randomly selected a set of 600 mammograms from DDSM database which
 are equally categorized to benign and malignant cases."
+
+We use the CBIS-DDSM since it "is is an updated and standardized version of the
+DDSM".
 '''
 
 import numpy as np
