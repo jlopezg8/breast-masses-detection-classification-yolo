@@ -1,2 +1,6 @@
 pandas
 numpy
+pydicom
+opencv-python
+tqdm # optional, for progress bars
+matplotlib  # optional, for showing images
