@@ -9,11 +9,8 @@ from glob import glob, iglob
 
 import pandas as pd
 
+import conf
 
-DESCRIPTIONS_PATH = 'mammograms_descriptions.csv'
-SAVE_AS = 'mammograms_descriptions2.csv'
-# *Immediate* parent directory of the cases directories:
-DATASET_PATH = r'CBIS-DDSM\Train\Mass'
 
 IM_PATH_COLNAME = 'image file path'
 CROPPED_PATH_COLNAME = 'cropped image file path'
@@ -26,7 +23,7 @@ def find_im(path):
     root = components[0]
     basename = components[-1]
     real_path = next(  # just need the first path found
-        iglob(os.path.join(DATASET_PATH, root, '**', basename),
+        iglob(os.path.join(conf.DATASET_PATH, root, '**', basename),
               # 'CBIS-DDSM/**/Mass-Training_P_00001_LEFT_CC/**/000000.dcm'
               recursive=True))
     return real_path
@@ -41,17 +38,17 @@ def find_overlay_ims(paths):
     Return a tuple ``(real_cropped_path, real_mask_path)``.
     """
     root = paths[CROPPED_PATH_COLNAME].split('/')[0]
-    path0, path1 = glob(os.path.join(DATASET_PATH, root, '**', '*.dcm'),
+    path0, path1 = glob(os.path.join(conf.DATASET_PATH, root, '**', '*.dcm'),
                         recursive=True)
     # The cropped image is smaller than the ROI mask:
     path0_is_cropped = os.path.getsize(path0) < os.path.getsize(path1)
     return (path0, path1) if path0_is_cropped else (path1, path0)
 
 
-descriptions = pd.read_csv(DESCRIPTIONS_PATH)
+descriptions = pd.read_csv(conf.DESCRIPTIONS_PATH)
 descriptions[IM_PATH_COLNAME] = descriptions[IM_PATH_COLNAME].map(find_im)
 colnames = (CROPPED_PATH_COLNAME, MASK_PATH_COLNAME)
 descriptions.loc[:, colnames] = (
     descriptions.loc[:, colnames].apply(find_overlay_ims, axis=1,
                                         result_type='broadcast'))
-descriptions.to_csv(SAVE_AS)
+descriptions.to_csv(conf.DESCRIPTIONS_PATH)

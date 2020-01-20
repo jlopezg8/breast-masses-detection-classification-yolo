@@ -13,9 +13,8 @@ import pandas as pd
 import pydicom
 from tqdm import tqdm
 
+import conf
 
-DESCRIPTIONS_PATH = 'mammograms_descriptions2.csv'
-ABNORMALITIES_PATH = 'abnormalities.json'
 
 Rect = namedtuple('Rect', ('x', 'y', 'w', 'h'))
 Rect.area = lambda rect: rect.w * rect.h
@@ -33,7 +32,7 @@ def get_bounding_rect(mask_path):
 
 
 def get_abnormalities():
-    descriptions = pd.read_csv(DESCRIPTIONS_PATH)
+    descriptions = pd.read_csv(conf.DESCRIPTIONS_PATH)
     colnames = {'image file path': 'im_path', 'ROI mask file path': 'mask_path'}
     grouped = (descriptions.rename(columns=colnames)
                            .loc[:, ('im_path', 'mask_path', 'pathology')]
@@ -49,7 +48,7 @@ def get_abnormalities():
 
 
 def show_abnormalities(im_path):
-    with open(ABNORMALITIES_PATH) as f:
+    with open(conf.ABNORMALITIES_PATH) as f:
         abnormalities = json.load(f)
     im = pydicom.dcmread(im_path).pixel_array
     color = int(im.max())
@@ -68,5 +67,5 @@ if __name__ == "__main__":
     if len(sys.argv) == 2:  # usage: get_abnormalities.py IM_PATH
         show_abnormalities(im_path=sys.argv[1])
     else:
-        with open(ABNORMALITIES_PATH, 'w') as f:
+        with open(conf.ABNORMALITIES_PATH, 'w') as f:
             json.dump(get_abnormalities(), f, indent=4)

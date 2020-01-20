@@ -11,7 +11,9 @@ DDSM".
 import numpy as np
 import pandas as pd
 
-DDSM_DB = pd.read_csv('CBIS-DDSM/mass_case_description_train_set.csv')
+import conf
+
+DDSM_DB = pd.read_csv(conf.MASS_TRAIN_DESCRIPTION_PATH)
 
 malign_indices = DDSM_DB.pathology == 'MALIGNANT'
 benign_indices = ~malign_indices
