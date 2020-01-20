@@ -11,11 +11,7 @@ import cv2
 import matplotlib.pyplot as plt
 import pandas as pd
 import pydicom
-
-try:
-    from tqdm import tqdm
-except ImportError:
-    tqdm = lambda iterable, *args, **kwargs: iter(iterable)
+from tqdm import tqdm
 
 
 DESCRIPTIONS_PATH = 'mammograms_descriptions2.csv'
