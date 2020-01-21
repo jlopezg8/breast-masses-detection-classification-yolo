@@ -4,6 +4,7 @@ mammogram and save the data in a JSON file.
 """
 
 import json
+import os
 import sys
 from collections import namedtuple
 
@@ -47,14 +48,11 @@ def get_abnormalities():
     }
 
 
-def show_abnormalities(im_path):
-    with open(conf.ABNORMALITIES_PATH) as f:
-        abnormalities = json.load(f)
-    im = pydicom.dcmread(im_path).pixel_array
+def show_abnormalities(im, im_abnormalities):
     color = int(im.max())
     thickness = max(im.shape) // 200
     fontScale = 5
-    for abnormality in abnormalities[im_path]:
+    for abnormality in im_abnormalities:
         x, y, w, h = abnormality['bounding_rect']
         cv2.rectangle(im, (x, y), (x + w, y + h), color, thickness)
         cv2.putText(im, abnormality['pathology'], (x, y - 2 * thickness),
@@ -63,9 +61,24 @@ def show_abnormalities(im_path):
     plt.show()
 
 
+def read_im_and_abnormalities(im_path):
+    root, ext = os.path.splitext(im_path)
+    if ext == '.dcm':
+        im = pydicom.dcmread(im_path).pixel_array
+        abnormalities_path = conf.ABNORMALITIES_PATH
+    else:
+        im = cv2.imread(im_path)
+        abnormalities_path = conf.AUGMENTED_DB_PATH
+    with open(abnormalities_path) as f:
+        abnormalities = json.load(f)
+    return im, abnormalities[im_path]
+
+
 if __name__ == "__main__":
     if len(sys.argv) == 2:  # usage: get_abnormalities.py IM_PATH
-        show_abnormalities(im_path=sys.argv[1])
+        im, abnormalities = read_im_and_abnormalities(im_path=sys.argv[1])
+        show_abnormalities(im, abnormalities)
     else:
+        abnormalities = get_abnormalities()
         with open(conf.ABNORMALITIES_PATH, 'w') as f:
-            json.dump(get_abnormalities(), f, indent=4)
+            json.dump(abnormalities, f, indent=4)

@@ -12,5 +12,5 @@ Implementation of Al-masni, M. A., Al-antari, M. A., Park, J. M., Gi, G., Kim, T
 5. Run `original_db.py`.
 6. Run `replace_paths.py` if the images paths in your copy of the CBIS-DDSM don't match the paths in the description csv file.
 7. Run `get_abnormalities.py`.
-8. ...
-
+8. Run `augmented_db.py`.
+9. ...
