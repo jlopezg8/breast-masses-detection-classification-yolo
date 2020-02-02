@@ -9,10 +9,13 @@ import sys
 from collections import namedtuple
 
 import cv2
-import matplotlib.pyplot as plt
 import pandas as pd
 import pydicom
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = lambda iterable, *args, **kwargs: iter(iterable)
 
 import conf
 
@@ -57,6 +60,7 @@ def show_abnormalities(im, im_abnormalities):
         cv2.rectangle(im, (x, y), (x + w, y + h), color, thickness)
         cv2.putText(im, abnormality['pathology'], (x, y - 2 * thickness),
                     cv2.FONT_HERSHEY_SIMPLEX, fontScale, color, thickness)
+    import matplotlib.pyplot as plt
     plt.imshow(im, cmap='gray')
     plt.show()
 

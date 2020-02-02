@@ -24,7 +24,7 @@ def find_im(path):
     basename = components[-1]
     real_path = next(  # just need the first path found
         iglob(os.path.join(conf.DATASET_PATH, root, '**', basename),
-              # 'CBIS-DDSM/**/Mass-Training_P_00001_LEFT_CC/**/000000.dcm'
+              # 'CBIS-DDSM/Mass-Training_P_00001_LEFT_CC/**/000000.dcm'
               recursive=True))
     return real_path
 
@@ -32,10 +32,12 @@ def find_im(path):
 def find_overlay_ims(paths):
     """Return the real paths for the cropped image and ROI mask of a given
     abnormality.
-    
-    `paths` is a ``pandas.Series`` containing the cropped image and ROI mask paths.
 
-    Return a tuple ``(real_cropped_path, real_mask_path)``.
+    This function is meant to be used by ``pandas.DataFrame.apply``, so `paths`
+    is a ``pandas.Series`` with ``index=('cropped image file path',
+    'ROI mask file path')``.
+
+    Returns a tuple ``(real_cropped_path, real_mask_path)``.
     """
     root = paths[CROPPED_PATH_COLNAME].split('/')[0]
     path0, path1 = glob(os.path.join(conf.DATASET_PATH, root, '**', '*.dcm'),
@@ -48,7 +50,11 @@ def find_overlay_ims(paths):
 descriptions = pd.read_csv(conf.DESCRIPTIONS_PATH)
 descriptions[IM_PATH_COLNAME] = descriptions[IM_PATH_COLNAME].map(find_im)
 colnames = (CROPPED_PATH_COLNAME, MASK_PATH_COLNAME)
+# We find and replace both cropped images and ROI masks file paths at the same
+# time because these are located in the same directory for any given
+# abnormality, thus we can avoid performing the same *costly* directory search
+# twice:
 descriptions.loc[:, colnames] = (
-    descriptions.loc[:, colnames].apply(find_overlay_ims, axis=1,
+    descriptions.loc[:, colnames].apply(find_overlay_ims, axis='columns',
                                         result_type='broadcast'))
 descriptions.to_csv(conf.DESCRIPTIONS_PATH)

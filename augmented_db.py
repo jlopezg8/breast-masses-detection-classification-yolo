@@ -13,16 +13,17 @@ import os
 import cv2
 import numpy as np
 import pydicom
-from tqdm import tqdm
+
+try:
+    from tqdm import tqdm
+except ImportError:
+    tqdm = lambda iterable, *args, **kwargs: iter(iterable)
 
 import conf
 
 
 def save_im(im, im_abnormalities, aug_db, root, name_suffix=''):
-    """Save the image to a file and store the metadata in `aug_db`. The image
-    and image abnormalities are returned to allow chaining calls to this
-    function.
-    """
+    """Save the image to a file and store the metadata in `aug_db`."""
     im_path = f'{root}{name_suffix}.png'  # 'CBIS-DDSM/.../000000_rot90.png'
     cv2.imwrite(im_path, im)
     aug_db[im_path] = im_abnormalities
@@ -58,14 +59,19 @@ def augment_db(db):
     return augmented_db
 
 
-def del_augmented_db(db):
-    """Can be used to remove the images created by this script."""
+def del_augmented_db():
+    with open(conf.AUGMENTED_DB_PATH) as f:
+        db = json.load(f)
     for im_path in db:
         os.remove(im_path)
+    os.remove(conf.AUGMENTED_DB_PATH)
 
 
 if __name__ == "__main__":
-    with open(conf.ABNORMALITIES_PATH) as f:
-        db = json.load(f)
-    with open(conf.AUGMENTED_DB_PATH, 'w') as f:
-        json.dump(augment_db(db), f, indent=4)
+    if '-d' in sys.argv:  # usage: augmented_db.py -d
+        del_augmented_db()
+    else:
+        with open(conf.ABNORMALITIES_PATH) as f:
+            db = json.load(f)
+        with open(conf.AUGMENTED_DB_PATH, 'w') as f:
+            json.dump(augment_db(db), f, indent=4)
